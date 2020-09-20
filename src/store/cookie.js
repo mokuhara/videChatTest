@@ -7,7 +7,7 @@ export default class CookieHandler {
     const cookiesArr = document.cookie.split(";");
     const cookie = cookiesArr.find((cookie) => {
       const decodeCookie = decodeURIComponent(cookie);
-      const coookieKey = decodeCookie.split("=")[0];
+      const coookieKey = decodeCookie.split("=")[0].trim();
       return coookieKey === this.key;
     });
     if (!cookie || !cookie.split("=")[1]) return "";
@@ -29,6 +29,7 @@ export default class CookieHandler {
   }
 
   isLogin() {
+    console.log(this.getCookie());
     return this.getCookie() ? true : false;
   }
 }

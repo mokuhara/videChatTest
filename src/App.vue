@@ -1,17 +1,33 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <div>
+    <div>
+      <Auth />
+    </div>
+    <div>
+      <MemberList />
+    </div>
+  </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Auth from "./components/Auth.vue";
+import MemberList from "./components/MemberList.vue";
+
+import { mapActions } from "vuex";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    Auth,
+    MemberList,
+  },
+  methods: {
+    ...mapActions(["getUser2Firebase"]),
+  },
+  mounted() {
+    this.getUser2Firebase();
+  },
+};
 </script>
 
 <style>
