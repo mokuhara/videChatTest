@@ -8,7 +8,7 @@
       <MemberList />
     </div>
     <div>
-      <!-- <VideoChat /> -->
+      <VideoChat />
     </div>
   </div>
 </template>
