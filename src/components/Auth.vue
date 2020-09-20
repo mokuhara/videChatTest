@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ user }}
     <div class="container">
       <div v-if="user.isLogin === false">
         <div class="btn" @click="_signIn">ログイン</div>
@@ -45,10 +44,12 @@ export default {
 <style lang="scss" scoped>
 .container {
   padding: 0 15px 0 5px;
+  display: flex;
+  justify-content: flex-end;
 }
 
 .btn {
-  width: 60px;
+  width: 100px;
   padding: 5px;
   border-radius: 3px;
 }
@@ -61,7 +62,6 @@ export default {
 .logout {
   display: flex;
   align-items: center;
-  justify-content: space-between;
 }
 
 .user {

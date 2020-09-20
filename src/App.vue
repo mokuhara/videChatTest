@@ -1,10 +1,14 @@
 <template>
-  <div>
-    <div>
+  <div class="container">
+    <div class="headerContainer">
+      <InputSelectbox />
       <Auth />
     </div>
     <div>
       <MemberList />
+    </div>
+    <div>
+      <!-- <VideoChat /> -->
     </div>
   </div>
 </template>
@@ -12,6 +16,8 @@
 <script>
 import Auth from "./components/Auth.vue";
 import MemberList from "./components/MemberList.vue";
+import InputSelectbox from "./components/InputSelectbox.vue";
+import VideoChat from "./components/VideoChat.vue";
 
 import { mapActions } from "vuex";
 
@@ -20,6 +26,8 @@ export default {
   components: {
     Auth,
     MemberList,
+    InputSelectbox,
+    VideoChat,
   },
   methods: {
     ...mapActions(["getUser2Firebase"]),
@@ -38,5 +46,14 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+
+/* .container {
+  width: 600px;
+} */
+
+.headerContainer {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

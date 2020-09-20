@@ -159,6 +159,12 @@ const mutations = {
   storeMembers(state, members) {
     state.members = members;
   },
+  changeActiveStatus(state, status) {
+    state.user.isActive = status;
+  },
+  changePeerId(state, peerId){
+    state.user.peerId = peerId
+  }
 };
 
 export default createStore({
