@@ -192,7 +192,7 @@ const mutations = {
     changePeerId(state, peerId) {
         state.user.peerId = peerId
     },
-    callStart(state, bool) {
+    changeCallStatus(state, bool) {
         state.callStart = bool
     },
     storeOpponent(state, payload) {

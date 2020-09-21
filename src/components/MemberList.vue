@@ -7,7 +7,10 @@
       <div class="membersContainer">
         <ul>
           <li v-for="(member, index) in members" :key="index">
-            <div class="memberContainer" v-if="member.isLogin">
+            <div
+              class="memberContainer"
+              v-if="member.isLogin && member.uid != user.uid"
+            >
               <MemberCard
                 :name="member.name"
                 :isLogin="member.isLogin"
@@ -38,7 +41,7 @@ export default {
     MemberCard,
   },
   computed: {
-    ...mapState(["members"]),
+    ...mapState(["members", "user"]),
   },
 };
 </script>

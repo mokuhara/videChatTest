@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div>
+    <div :class="calling ? 'container' : 'hide'">
       <div v-if="calling" class="opponentContainer">
         <div>
           <img class="icon" :src="opponent.iconUrl || remoteOponent.iconUrl" />
@@ -13,15 +13,11 @@
         <video id="localVideo" autoplay muted playsinline></video>
       </div>
 
-      <div class="btn">
+      <div class="btn" v-if="calling">
         <!-- <div @click="makeCall">通話開始</div> -->
         <div @click="closeCall">通話終了</div>
         <div @click="shareScreenHandler">画面共有</div>
       </div>
-    </div>
-    <div>
-      <p id="myId"></p>
-      <textarea id="their-id"></textarea>
     </div>
   </div>
 </template>
@@ -38,7 +34,6 @@ export default {
       peer: {},
       peerID: "",
       mediaConnection: undefined,
-      hoge: "",
       remoteOponent: {
         name: "",
         iconUrl: "",
@@ -50,7 +45,7 @@ export default {
     ...mapState(["callStart", "opponent", "user"]),
   },
   methods: {
-    ...mapMutations(["changePeerId"]),
+    ...mapMutations(["changePeerId", "changeCallStatus"]),
     ...mapActions(["storeUser2Firebase"]),
     makeCall() {
       if (!this.peer.open) {
@@ -80,11 +75,12 @@ export default {
       this.mediaConnection.once("close", () => {
         remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideo.srcObject = null;
+        this._closeCallFlg();
       });
     },
     closeCall() {
       this.mediaConnection.close(true);
-      this.calling = false;
+      this._closeCallFlg();
     },
     async shareScreenHandler() {
       const shareScreenStream = await navigator.mediaDevices.getDisplayMedia({
@@ -103,8 +99,7 @@ export default {
       const localVideo = document.getElementById("localVideo");
       localVideo.srcObject = shareScreenStream;
       await localVideo.play().catch(console.error);
-      shareScreenStream.getVideoTracks()[0].onended = (evt) => {
-        console.log(evt);
+      shareScreenStream.getVideoTracks()[0].onended = () => {
         this.stopScreenShareProc();
       };
     },
@@ -119,6 +114,10 @@ export default {
     },
     hanleLocalMediaStreamError(error) {
       console.log("navigator.getUserMedia error: ", error);
+    },
+    _closeCallFlg() {
+      this.calling = false;
+      this.changeCallStatus(false);
     },
   },
   async mounted() {
@@ -145,11 +144,8 @@ export default {
     });
 
     this.peer.once("open", (id) => {
-      const target = document.querySelector("#myId");
-      target.textContent = id;
       this.changePeerId(id);
       this.storeUser2Firebase();
-      this.hoge = id;
     });
 
     // Register callee handler
@@ -171,21 +167,26 @@ export default {
       mediaConnection.once("close", () => {
         remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideo.srcObject = null;
-        this.calling = false;
+        this._closeCallFlg();
       });
     });
     this.peer.on("error", console.error);
   },
   watch: {
     callStart(val) {
-      console.log("watch", val);
-      this.makeCall();
+      if (val) {
+        this.makeCall();
+      }
     },
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.hide {
+  display: none;
+}
+
 .videoContainer {
   width: 800px;
   position: relative;

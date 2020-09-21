@@ -1,6 +1,7 @@
 <template>
   <div>
     <div>
+      {{ isActive }}
       <div class="memberContainer">
         <div class="leftContainer">
           <img class="icon" :src="iconUrl" />
@@ -9,7 +10,7 @@
         <div class="rightContainer">
           <p>{{ name }}</p>
         </div>
-        <div class="callWrapper">
+        <div v-if="isActive" class="callWrapper">
           <Button :text="text" :callback="callback" />
         </div>
       </div>
@@ -30,7 +31,7 @@ export default {
   },
   methods: {
     ...mapActions(["getUser2Firebase"]),
-    ...mapMutations(["callStart", "storeOpponent"]),
+    ...mapMutations(["changeCallStatus", "storeOpponent"]),
     callback() {
       const payload = {
         name: this.name,
@@ -39,7 +40,7 @@ export default {
       };
       this.getUser2Firebase();
       this.storeOpponent(payload);
-      this.callStart(true);
+      this.changeCallStatus(true);
     },
   },
   components: {
