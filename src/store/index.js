@@ -26,6 +26,11 @@ const state = {
         isLogin: false,
     },
     members: [],
+    // opponent: {
+    //     name: "",
+    //     iconUrl: "",
+    //     peerId: "",
+    // }
 };
 
 const actions = {

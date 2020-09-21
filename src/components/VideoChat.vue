@@ -1,6 +1,7 @@
 <template>
   <div>
     <div>
+      {{ peerID }}
       <div class="videoContainer">
         <video id="remoteVideo" autoplay muted playsinline></video>
         <video id="localVideo" autoplay muted playsinline></video>
@@ -9,7 +10,7 @@
       <div class="btn">
         <div @click="makeCall">通話開始</div>
         <div @click="closeCall">通話終了</div>
-        <div @click="shareScreen">画面共有</div>
+        <div @click="shareScreenHandler">画面共有</div>
       </div>
     </div>
     <div>
@@ -43,8 +44,8 @@ export default {
       }
       const remoteVideo = document.querySelector("#remoteVideo");
       //相手のremoteIDとか取得する
-      const theirID = document.getElementById("their-id").value;
-      this.mediaConnection = this.peer.call(theirID, this.localStream);
+      this.peerID = document.getElementById("their-id").value;
+      this.mediaConnection = this.peer.call(this.peerID, this.localStream);
 
       this.mediaConnection.on("stream", async (stream) => {
         // Render remote stream for caller
@@ -61,46 +62,35 @@ export default {
     closeCall() {
       this.mediaConnection.close(true);
     },
-    shareScreen() {
-      const mediaStreamConstraints = {
+    async shareScreenHandler() {
+      const shareScreenStream = await navigator.mediaDevices.getDisplayMedia({
         video: true,
-      };
-      navigator.mediaDevices
-        .getDisplayMedia(mediaStreamConstraints)
-        .then(this.gotLocalMediaStream)
-        .catch(this.handleLocalMediaStreamError);
-    },
-    gotLocalMediaStream(mediaStream) {
+        audio: true,
+      });
+      const audioStream = await navigator.mediaDevices.getUserMedia({
+        video: false,
+        audio: true,
+      });
+      const combinedStream = new MediaStream([
+        ...shareScreenStream.getTracks(),
+        ...audioStream.getTracks(),
+      ]);
+      this.mediaConnection.replaceStream(combinedStream);
       const localVideo = document.getElementById("localVideo");
-      let requestFullScreen =
-        localVideo.requestFullscreen ||
-        localVideo.mozRequestFullScreen ||
-        localVideo.webkitRequestFullScreen ||
-        localVideo.msRequestFullscreen;
-      requestFullScreen.call(localVideo);
-      localVideo.srcObject = mediaStream;
-      mediaStream.getVideoTracks()[0].onended = (evt) => {
+      localVideo.srcObject = shareScreenStream;
+      await localVideo.play().catch(console.error);
+      shareScreenStream.getVideoTracks()[0].onended = (evt) => {
         console.log(evt);
         this.stopScreenShareProc();
       };
-      //   mediaStream.getTracks()
-      //   .forEach(track.onended  => track.stop())
     },
+
     async stopScreenShareProc() {
       // 共有停止後の処理
       console.log("画面共有停止");
-      // 元の画面に戻す処理
       const localVideo = document.getElementById("localVideo");
-      const cancelFullScreen =
-        localVideo.exitFullscreen ||
-        localVideo.mozCancelFullScreen ||
-        localVideo.webkitExitFullscreen ||
-        localVideo.msExitFullscreen;
-      cancelFullScreen.call(localVideo);
-
-      localVideo.muted = true;
+      this.mediaConnection.replaceStream(this.localStream);
       localVideo.srcObject = this.localStream;
-      localVideo.playsInline = true;
       await localVideo.play().catch(console.error);
     },
     hanleLocalMediaStreamError(error) {
@@ -141,7 +131,7 @@ export default {
     // Register callee handler
     this.peer.on("call", (mediaConnection) => {
       mediaConnection.answer(this.localStream);
-
+      this.mediaConnection = mediaConnection;
       mediaConnection.on("stream", async (stream) => {
         // Render remote stream for callee
         remoteVideo.srcObject = stream;
@@ -150,6 +140,8 @@ export default {
       });
 
       mediaConnection.once("close", () => {
+        console.log("hogehgoehgoe");
+        console.log(mediaConnection);
         remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideo.srcObject = null;
       });
