@@ -26,11 +26,12 @@ const state = {
         isLogin: false,
     },
     members: [],
-    // opponent: {
-    //     name: "",
-    //     iconUrl: "",
-    //     peerId: "",
-    // }
+    opponent: {
+        name: "",
+        iconUrl: "",
+        peerId: "",
+    },
+    callStart: false,
 };
 
 const actions = {
@@ -148,8 +149,7 @@ const actions = {
         commit
     }) {
         db.collection("Account")
-            .get()
-            .then((querySnapshot) => {
+            .onSnapshot((querySnapshot) => {
                 let members = [];
                 querySnapshot.forEach((doc) => {
                     if (!doc.exists) return;
@@ -191,6 +191,14 @@ const mutations = {
     },
     changePeerId(state, peerId) {
         state.user.peerId = peerId
+    },
+    callStart(state, bool) {
+        state.callStart = bool
+    },
+    storeOpponent(state, payload) {
+        state.opponent.name = payload.name
+        state.opponent.iconUrl = payload.iconUrl
+        state.opponent.peerId = payload.peerId
     }
 };
 

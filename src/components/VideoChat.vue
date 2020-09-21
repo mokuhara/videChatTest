@@ -1,14 +1,20 @@
 <template>
   <div>
     <div>
-      {{ peerID }}
+      <div v-if="calling" class="opponentContainer">
+        <div>
+          <img class="icon" :src="opponent.iconUrl || remoteOponent.iconUrl" />
+        </div>
+        <p>{{ opponent.name || remoteOponent.name }}</p>
+        <div></div>
+      </div>
       <div class="videoContainer">
         <video id="remoteVideo" autoplay muted playsinline></video>
         <video id="localVideo" autoplay muted playsinline></video>
       </div>
 
       <div class="btn">
-        <div @click="makeCall">通話開始</div>
+        <!-- <div @click="makeCall">通話開始</div> -->
         <div @click="closeCall">通話終了</div>
         <div @click="shareScreenHandler">画面共有</div>
       </div>
@@ -23,7 +29,7 @@
 <script>
 import Peer from "skyway-js";
 import { API_KEY } from "../../config/skyway";
-import { mapMutations, mapActions } from "vuex";
+import { mapMutations, mapActions, mapState } from "vuex";
 
 export default {
   data() {
@@ -33,7 +39,15 @@ export default {
       peerID: "",
       mediaConnection: undefined,
       hoge: "",
+      remoteOponent: {
+        name: "",
+        iconUrl: "",
+      },
+      calling: false,
     };
+  },
+  computed: {
+    ...mapState(["callStart", "opponent", "user"]),
   },
   methods: {
     ...mapMutations(["changePeerId"]),
@@ -44,8 +58,17 @@ export default {
       }
       const remoteVideo = document.querySelector("#remoteVideo");
       //相手のremoteIDとか取得する
-      this.peerID = document.getElementById("their-id").value;
-      this.mediaConnection = this.peer.call(this.peerID, this.localStream);
+      //   this.peerID = document.getElementById("their-id").value;
+      this.peerID = this.opponent.peerId;
+      this.mediaConnection = this.peer.call(this.peerID, this.localStream, {
+        metadata: {
+          payload: {
+            name: this.user.name,
+            iconUrl: this.user.iconUrl,
+          },
+        },
+      });
+      this.calling = true;
 
       this.mediaConnection.on("stream", async (stream) => {
         // Render remote stream for caller
@@ -61,6 +84,7 @@ export default {
     },
     closeCall() {
       this.mediaConnection.close(true);
+      this.calling = false;
     },
     async shareScreenHandler() {
       const shareScreenStream = await navigator.mediaDevices.getDisplayMedia({
@@ -130,6 +154,11 @@ export default {
 
     // Register callee handler
     this.peer.on("call", (mediaConnection) => {
+      if (mediaConnection.metadata && mediaConnection.metadata.payload) {
+        this.remoteOponent.name = mediaConnection.metadata.payload.name;
+        this.remoteOponent.iconUrl = mediaConnection.metadata.payload.iconUrl;
+      }
+      this.calling = true;
       mediaConnection.answer(this.localStream);
       this.mediaConnection = mediaConnection;
       mediaConnection.on("stream", async (stream) => {
@@ -140,13 +169,18 @@ export default {
       });
 
       mediaConnection.once("close", () => {
-        console.log("hogehgoehgoe");
-        console.log(mediaConnection);
         remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideo.srcObject = null;
+        this.calling = false;
       });
     });
     this.peer.on("error", console.error);
+  },
+  watch: {
+    callStart(val) {
+      console.log("watch", val);
+      this.makeCall();
+    },
   },
 };
 </script>
@@ -174,5 +208,15 @@ export default {
 .btn {
   display: flex;
   justify-content: center;
+}
+
+.opponentContainer {
+  display: flex;
+}
+
+.icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
 }
 </style>

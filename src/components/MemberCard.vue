@@ -9,13 +9,42 @@
         <div class="rightContainer">
           <p>{{ name }}</p>
         </div>
+        <div class="callWrapper">
+          <Button :text="text" :callback="callback" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import Button from "./Button";
+
+import { mapMutations, mapActions } from "vuex";
+
 export default {
+  data() {
+    return {
+      text: "通話",
+    };
+  },
+  methods: {
+    ...mapActions(["getUser2Firebase"]),
+    ...mapMutations(["callStart", "storeOpponent"]),
+    callback() {
+      const payload = {
+        name: this.name,
+        iconUrl: this.iconUrl,
+        peerId: this.peerId,
+      };
+      this.getUser2Firebase();
+      this.storeOpponent(payload);
+      this.callStart(true);
+    },
+  },
+  components: {
+    Button,
+  },
   props: {
     name: String,
     isLogin: Boolean,
@@ -65,5 +94,11 @@ ul {
 
 .red {
   background: red;
+}
+
+.callWrapper {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
 }
 </style>
