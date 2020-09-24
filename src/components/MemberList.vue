@@ -3,6 +3,7 @@
     <div>
       <div>
         メンバー一覧
+        {{ members }}
       </div>
       <div class="membersContainer">
         <ul>

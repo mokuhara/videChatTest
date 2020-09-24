@@ -11,7 +11,12 @@
           <p>{{ name }}</p>
         </div>
         <div v-if="isActive" class="callWrapper">
-          <Button :text="text" :callback="callback" />
+          <div>
+            <Button :text="callText" :callback="startCall" />
+          </div>
+          <div>
+            <Button :text="chatText" :callback="startChat" />
+          </div>
         </div>
       </div>
     </div>
@@ -26,13 +31,14 @@ import { mapMutations, mapActions } from "vuex";
 export default {
   data() {
     return {
-      text: "通話",
+      callText: "通話",
+      chatText: "チャット",
     };
   },
   methods: {
     ...mapActions(["getUser2Firebase"]),
     ...mapMutations(["changeCallStatus", "storeOpponent"]),
-    callback() {
+    startCall() {
       const payload = {
         name: this.name,
         iconUrl: this.iconUrl,
@@ -41,6 +47,15 @@ export default {
       this.getUser2Firebase();
       this.storeOpponent(payload);
       this.changeCallStatus(true);
+    },
+    startChat() {
+      const payload = {
+        name: this.name,
+        iconUrl: this.iconUrl,
+        peerId: this.peerId,
+      };
+      this.getUser2Firebase();
+      this.storeOpponent(payload);
     },
   },
   components: {
