@@ -8,7 +8,7 @@
       <MemberList />
     </div>
     <div>
-      <VideoChat />
+      <!-- <VideoChat /> -->
     </div>
     <div>
       <TextChat />
@@ -20,7 +20,7 @@
 import Auth from "./components/Auth.vue";
 import MemberList from "./components/MemberList.vue";
 import InputSelectbox from "./components/InputSelectbox.vue";
-import VideoChat from "./components/VideoChat.vue";
+// import VideoChat from "./components/VideoChat.vue";
 import TextChat from "./components/TextChat.vue";
 
 import { mapActions } from "vuex";
@@ -31,7 +31,7 @@ export default {
     Auth,
     MemberList,
     InputSelectbox,
-    VideoChat,
+    // VideoChat,
     TextChat,
   },
   methods: {

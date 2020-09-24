@@ -5,8 +5,10 @@
     <div class="submit" @click="sendMessage">送信</div>
     <div class="stop" @click="stopMessage">止める</div>
     {{ remoteOponent.name }}
-    <p>=================</p>
-    {{ opponent.peerId }}
+    <p>=====remoteID============</p>
+    {{ remoteId }}
+    <p>=====localID============</p>
+    {{ localId }}
   </div>
 </template>
 
@@ -25,6 +27,8 @@ export default {
         name: "",
         iconUrl: "",
       },
+      localId: "",
+      remoteId: null,
     };
   },
   computed: {
@@ -35,7 +39,7 @@ export default {
     ...mapActions(["storeUser2Firebase"]),
     sendMessage() {
       if (!this.user || !this.peer.open) return;
-      this.peerID = this.opponent.peerId;
+      this.peerID = this.remoteId || this.opponent.peerId;
       const dataConnection =
         this.dataConnection ||
         this.peer.connect(this.peerID, {
@@ -43,6 +47,7 @@ export default {
             payload: {
               name: this.user.name,
               iconUrl: this.user.iconUrl,
+              remoteId: this.localId,
             },
           },
         });
@@ -76,6 +81,7 @@ export default {
     });
 
     this.peer.once("open", (id) => {
+      this.localId = id;
       this.changePeerId(id);
       this.storeUser2Firebase();
     });
@@ -85,12 +91,13 @@ export default {
       const dataConnection = this.dataConnection || _dataConnection;
       try {
         dataConnection.once("open", async () => {
-          console.log("dataConnection.metadata.payload");
-          console.log(dataConnection.metadata.payload);
+          console.error("dataConnection.metadata.payload");
+          console.error(dataConnection.metadata.payload);
           if (!dataConnection.metadata || !dataConnection.metadata.payload)
             throw new Error("remote user name is null");
           this.remoteOponent.name = dataConnection.metadata.payload.name;
           this.remoteOponent.iconUrl = dataConnection.metadata.payload.iconUrl;
+          this.remoteId = dataConnection.metadata.payload.remoteId;
         });
         dataConnection.on("data", (data) => {
           const remoteMessage = {
