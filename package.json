@@ -10,8 +10,11 @@
     "express:run": "vue-cli-service express:run"
   },
   "dependencies": {
+    "axios": "^0.20.0",
     "core-js": "^3.6.5",
+    "cors": "^2.8.5",
     "firebase": "^7.21.0",
+    "lodash": "^4.17.20",
     "mongoose": "^5.10.7",
     "skyway-js": "^3.0.2",
     "vue": "^3.0.0-0",

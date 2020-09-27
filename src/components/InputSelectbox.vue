@@ -17,6 +17,8 @@
 
 <script>
 import { mapMutations, mapActions } from "vuex";
+import Peer from "skyway-js";
+import { API_KEY } from "../../config/skyway";
 
 export default {
   data() {
@@ -30,11 +32,40 @@ export default {
   },
   methods: {
     ...mapActions(["storeUser2Firebase"]),
-    ...mapMutations(["changeActiveStatus"]),
+    ...mapMutations(["changeActiveStatus", "changePeerId", "changePeerObj"]),
     submitData() {
+      if (this.selected) {
+        const peer = new Peer({
+          key: API_KEY,
+          debug: 3,
+        });
+        this.changePeerObj(peer);
+
+        peer.once("open", (id) => {
+          this.changePeerId(id);
+        });
+      } else {
+        this.changePeerId("");
+      }
       this.changeActiveStatus(this.selected);
       this.storeUser2Firebase();
     },
+  },
+  mounted() {
+    if (this.selected) {
+      const peer = new Peer({
+        key: API_KEY,
+        debug: 3,
+      });
+      this.changePeerObj(peer);
+
+      peer.once("open", (id) => {
+        this.changePeerId(id);
+        this.changeActiveStatus(this.selected);
+        this.storeUser2Firebase();
+        console.log("hogehgoe");
+      });
+    }
   },
 };
 </script>

@@ -26,36 +26,45 @@
 <script>
 import Button from "./Button";
 
-import { mapMutations, mapActions } from "vuex";
+import { mapMutations, mapActions, mapState } from "vuex";
 
 export default {
   data() {
     return {
       callText: "通話",
       chatText: "チャット",
+      _peerId: this.peerId,
     };
   },
+  computed: {
+    ...mapState(["user"]),
+  },
   methods: {
-    ...mapActions(["getUser2Firebase"]),
-    ...mapMutations(["changeCallStatus", "storeOpponent"]),
+    ...mapActions(["getUser2Firebase", "getPeerIdFromDB"]),
+    ...mapMutations(["changeCallStatus", "changeChatStatus", "storeOpponent"]),
     startCall() {
       const payload = {
         name: this.name,
         iconUrl: this.iconUrl,
-        peerId: this.peerId,
+        peerId: this._peerId,
       };
       this.getUser2Firebase();
+      //   this.getPeerIdFromDB(this.uid);
+      //   this.getPeerIdFromDB(this.user.uid);
       this.storeOpponent(payload);
       this.changeCallStatus(true);
     },
     startChat() {
+      this.getUser2Firebase();
+      //   this.getPeerIdFromDB(this.uid);
+      //   this.getPeerIdFromDB(this.user.uid);
       const payload = {
         name: this.name,
         iconUrl: this.iconUrl,
-        peerId: this.peerId,
+        peerId: this._peerId,
       };
-      this.getUser2Firebase();
       this.storeOpponent(payload);
+      this.changeChatStatus(true);
     },
   },
   components: {
@@ -68,6 +77,13 @@ export default {
     iconUrl: String,
     isActive: Boolean,
     uid: String,
+  },
+  watch: {
+    peerId(val) {
+      if (val) {
+        this._peerId = val;
+      }
+    },
   },
 };
 </script>

@@ -1,20 +1,21 @@
 <template>
   <div>
-    {{ thread }}
-    <textarea v-model="text"></textarea>
-    <div class="submit" @click="sendMessage">送信</div>
-    <div class="stop" @click="stopMessage">止める</div>
-    {{ remoteOponent.name }}
-    <p>=====remoteID============</p>
-    {{ remoteId }}
-    <p>=====localID============</p>
-    {{ localId }}
+    {{ chatStart }}
+    <div v-if="chatStart">
+      {{ thread }}
+      <textarea v-model="text"></textarea>
+      <div class="submit" @click="sendMessage">送信</div>
+      <div class="stop" @click="stopMessage">止める</div>
+      {{ remoteOponent.name }}
+      <p>=====remoteID============</p>
+      {{ remoteId }}
+      <p>=====localID============</p>
+      {{ localId }}
+    </div>
   </div>
 </template>
 
 <script>
-import Peer from "skyway-js";
-import { API_KEY } from "../../config/skyway";
 import { mapMutations, mapActions, mapState } from "vuex";
 
 export default {
@@ -27,86 +28,93 @@ export default {
         name: "",
         iconUrl: "",
       },
-      localId: "",
+      localId: null,
       remoteId: null,
     };
   },
   computed: {
-    ...mapState(["callStart", "opponent", "user"]),
+    ...mapState(["callStart", "opponent", "user", "peerObj", "chatStart"]),
   },
   methods: {
-    ...mapMutations(["changePeerId", "changeCallStatus"]),
+    ...mapMutations(["changePeerId", "changeCallStatus", "changeChatStatus"]),
     ...mapActions(["storeUser2Firebase"]),
     sendMessage() {
       if (!this.user || !this.peer.open) return;
       this.peerID = this.remoteId || this.opponent.peerId;
-      const dataConnection =
-        this.dataConnection ||
-        this.peer.connect(this.peerID, {
-          metadata: {
-            payload: {
-              name: this.user.name,
-              iconUrl: this.user.iconUrl,
-              remoteId: this.localId,
-            },
+      this.dataConnection = this.peer.connect(this.peerID, {
+        metadata: {
+          payload: {
+            name: this.user.name,
+            iconUrl: this.user.iconUrl,
+            remoteId: this.user.peerId,
           },
-        });
-      dataConnection.on("open", () => {
+        },
+      });
+      this.dataConnection.on("open", () => {
         const localMessage = {
           name: this.user.name,
           iconUrl: this.user.iconUrl,
           type: "local",
           text: this.text,
+          createdAt: new Date(),
         };
-        dataConnection.send({ text: this.text });
+        this.dataConnection.send({ text: this.text || "切断されました" });
         this.thread.push(localMessage);
         this.text = "";
       });
     },
     stopMessage() {
-      this.dataConnection.close();
+      this.dataConnection.close(true);
+      this.changeChatStatus(false);
     },
   },
-  //   watch: {
-  //     callStart(val) {
-  //       if (val) {
-  //         this.makeCall();
-  //       }
-  //     },
-  //   },
   mounted() {
-    this.peer = new Peer({
-      key: API_KEY,
-      debug: 3,
-    });
-
-    this.peer.once("open", (id) => {
-      this.localId = id;
-      this.changePeerId(id);
-      this.storeUser2Firebase();
-    });
+    this.localId = this.user.peerId;
+    this.peer = this.peerObj;
 
     // Register connected peer handler
     this.peer.on("connection", (_dataConnection) => {
-      const dataConnection = this.dataConnection || _dataConnection;
+      this.dataConnection = _dataConnection;
+      const name = this.dataConnection.metadata.payload.name;
       try {
-        dataConnection.once("open", async () => {
+        this.dataConnection.once("open", async () => {
           console.error("dataConnection.metadata.payload");
-          console.error(dataConnection.metadata.payload);
-          if (!dataConnection.metadata || !dataConnection.metadata.payload)
+          console.error(this.dataConnection.metadata.payload);
+          if (
+            !this.dataConnection.metadata ||
+            !this.dataConnection.metadata.payload
+          )
             throw new Error("remote user name is null");
-          this.remoteOponent.name = dataConnection.metadata.payload.name;
-          this.remoteOponent.iconUrl = dataConnection.metadata.payload.iconUrl;
-          this.remoteId = dataConnection.metadata.payload.remoteId;
+          this.remoteOponent.name = this.dataConnection.metadata.payload.name;
+          this.remoteOponent.iconUrl = this.dataConnection.metadata.payload.iconUrl;
+          this.remoteId = this.dataConnection.metadata.payload.remoteId;
+
+          if (!this.chatStart) {
+            const comfirm = confirm(
+              `${name}からチャット要請がきてます。受けますか？`
+            );
+            if (!comfirm) {
+              console.error("colse!!!!!!");
+              this.sendMessage();
+              this.dataConnection.close(true);
+              return;
+            }
+          }
+          //open chat window
+          this.changeChatStatus(true);
         });
-        dataConnection.on("data", (data) => {
+        this.dataConnection.on("data", (data) => {
           const remoteMessage = {
             name: this.remoteOponent.name,
             iconUrl: this.remoteOponent.iconUrl,
             type: "remote",
             text: data.text,
+            createdAt: new Date(),
           };
           this.thread.push(remoteMessage);
+        });
+        this.dataConnection.on("close", () => {
+          this.changeChatStatus(false);
         });
       } catch (e) {
         console.error(eval);

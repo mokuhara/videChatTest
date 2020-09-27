@@ -1,52 +1,61 @@
 import express from "express";
-// import socketIO from "socket.io";
 
-//Import the mongoose module
+const _ = require("lodash");
+const cors = require("cors");
+
 const mongoose = require("mongoose");
 const UsersList = require("./models/user");
+const PeerIdsList = require("./models/peerIds");
 const MONGOCONFIG = require("../config/mongodb");
 
 //Set up default mongoose connection
-const mongoDB = MONGOCONFIG.ENDPOINT
+const mongoDB = MONGOCONFIG.ENDPOINT;
 mongoose.connect(mongoDB);
-// Get Mongoose to use the global promise library
 mongoose.Promise = global.Promise;
-//Get the default connection
 const db = mongoose.connection;
 
-//Bind connection to error event (to get notification of connection errors)
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
 export default (app, http) => {
   app.use(express.json());
+  app.use(cors());
 
-  app.get("/foo", (req, res) => {
-    res.json({
-      msg: "foo!",
+  app.post("/api/v1/peerId/store", async (req, res) => {
+    const filter = {
+      uid: req.body.uid,
+    };
+    const update = {
+      peerId: req.body.peerId,
+      updatedAt: new Date(),
+    };
+    PeerIdsList.update(filter, update, {
+      upsert: true,
+    }).catch((e) => {
+      return res.status(500).send("post session faild");
+    });
+    const doc = await PeerIdsList.find({
+      uid: req.body.uid,
+    });
+    const latestData = _.max(doc, (peerId) => {
+      return peerId.updatedAt;
+    });
+    return res.json({
+      peerId: latestData.peerId,
     });
   });
 
-  app.get("/mydb", (req, res) => {
-    UsersList.find(function (err, result) {
-      if (!err) {
-        return res.json(result);
-      } else {
-        return res.status(500).send("post mylist faild");
-      }
+  app.post("/api/v1/peerId/search", async (req, res) => {
+    const filter = {
+      uid: req.body.uid,
+    };
+    const doc = await PeerIdsList.find({
+      uid: req.body.uid,
+    });
+    const latestData = _.max(doc, (peerId) => {
+      return peerId.updatedAt;
+    });
+    return res.json({
+      peerId: latestData.peerId,
     });
   });
-  //
-  // app.post('/bar', (req, res) => {
-  //   res.json(req.body);
-  // });
-  //
-  // optional support for socket.io
-  //
-  // let io = socketIO(http);
-  // io.on("connection", client => {
-  //   client.on("message", function(data) {
-  //     // do something
-  //   });
-  //   client.emit("message", "Welcome");
-  // });
 };
