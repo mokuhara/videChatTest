@@ -12,10 +12,14 @@
         </div>
         <div v-if="isActive" class="callWrapper">
           <div>
-            <Button :text="callText" :callback="startCall" />
+            <router-link to="/video">
+              <Button :text="callText" :callback="startCall"
+            /></router-link>
           </div>
           <div>
-            <Button :text="chatText" :callback="startChat" />
+            <router-link to="/text"
+              ><Button :text="chatText" :callback="startChat"
+            /></router-link>
           </div>
         </div>
       </div>
@@ -33,7 +37,7 @@ export default {
     return {
       callText: "通話",
       chatText: "チャット",
-      _peerId: this.peerId,
+      peerId_: this.peerId,
     };
   },
   computed: {
@@ -46,7 +50,7 @@ export default {
       const payload = {
         name: this.name,
         iconUrl: this.iconUrl,
-        peerId: this._peerId,
+        peerId: this.peerId_,
       };
       this.getUser2Firebase();
       //   this.getPeerIdFromDB(this.uid);
@@ -61,7 +65,7 @@ export default {
       const payload = {
         name: this.name,
         iconUrl: this.iconUrl,
-        peerId: this._peerId,
+        peerId: this.peerId_,
       };
       this.storeOpponent(payload);
       this.changeChatStatus(true);
@@ -81,7 +85,7 @@ export default {
   watch: {
     peerId(val) {
       if (val) {
-        this._peerId = val;
+        this.peerId_ = val;
       }
     },
   },
