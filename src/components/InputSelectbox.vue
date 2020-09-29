@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="container">
+    <div class="container" v-if="user.uid">
       <div class="title">
         受電可否
       </div>
@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import { mapMutations, mapActions } from "vuex";
+import { mapMutations, mapActions, mapState } from "vuex";
 import Peer from "skyway-js";
 import { API_KEY } from "../../config/skyway";
 
@@ -29,6 +29,9 @@ export default {
         { text: "NG", value: false },
       ],
     };
+  },
+  computed: {
+    ...mapState(["user"]),
   },
   methods: {
     ...mapActions(["storeUser2Firebase"]),
@@ -63,7 +66,6 @@ export default {
         this.changePeerId(id);
         this.changeActiveStatus(this.selected);
         this.storeUser2Firebase();
-        console.log("hogehgoe");
       });
     }
   },

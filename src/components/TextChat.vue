@@ -37,7 +37,7 @@ export default {
   },
   methods: {
     ...mapMutations(["changePeerId", "changeCallStatus", "changeChatStatus"]),
-    ...mapActions(["storeUser2Firebase"]),
+    ...mapActions(["storeUser2Firebase", "storeChat2DB"]),
     sendMessage() {
       if (!this.user || !this.peer.open) return;
       this.peerID = this.remoteId || this.opponent.peerId;
@@ -64,6 +64,12 @@ export default {
       });
     },
     stopMessage() {
+      const payload = {
+        localUid: this.localId,
+        remoteUid: this.remoteId,
+        thread: this.thread,
+      };
+      this.storeChat2DB(payload);
       this.dataConnection.close(true);
       this.changeChatStatus(false);
     },
@@ -78,8 +84,6 @@ export default {
       const name = this.dataConnection.metadata.payload.name;
       try {
         this.dataConnection.once("open", async () => {
-          console.error("dataConnection.metadata.payload");
-          console.error(this.dataConnection.metadata.payload);
           if (
             !this.dataConnection.metadata ||
             !this.dataConnection.metadata.payload
@@ -94,7 +98,6 @@ export default {
               `${name}からチャット要請がきてます。受けますか？`
             );
             if (!comfirm) {
-              console.error("colse!!!!!!");
               this.sendMessage();
               this.dataConnection.close(true);
               return;
@@ -116,9 +119,7 @@ export default {
         this.dataConnection.on("close", () => {
           this.changeChatStatus(false);
         });
-      } catch (e) {
-        console.error(eval);
-      }
+      } catch (e) {}
     });
   },
 };

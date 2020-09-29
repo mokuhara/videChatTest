@@ -106,7 +106,6 @@ export default {
 
     async stopScreenShareProc() {
       // 共有停止後の処理
-      console.log("画面共有停止");
       const localVideo = document.getElementById("localVideo");
       this.mediaConnection.replaceStream(this.localStream);
       localVideo.srcObject = this.localStream;
