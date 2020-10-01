@@ -1,25 +1,28 @@
 <template>
   <div>
     <div>
-      {{ isActive }}
       <div class="memberContainer">
         <div class="leftContainer">
-          <img class="icon" :src="iconUrl" />
-          <div class="activeStatus" :class="isActive ? 'green' : 'red'"></div>
+          <div class="iconWrapper">
+            <img class="icon" :src="iconUrl" />
+            <div class="activeStatus" :class="isActive ? 'green' : 'red'"></div>
+          </div>
         </div>
         <div class="rightContainer">
-          <p>{{ name }}</p>
-        </div>
-        <div v-if="isActive" class="callWrapper">
           <div>
-            <router-link to="/video">
-              <Button :text="callText" :callback="startCall"
-            /></router-link>
+            <p>{{ name }}</p>
           </div>
-          <div>
-            <router-link to="/text"
-              ><Button :text="chatText" :callback="startChat"
-            /></router-link>
+          <div v-if="isActive" class="chatWrapper">
+            <div class="videoWrapper">
+              <router-link to="/video">
+                <Button :text="callText" :callback="startCall"
+              /></router-link>
+            </div>
+            <div>
+              <router-link to="/text"
+                ><Button :text="chatText" :callback="startChat"
+              /></router-link>
+            </div>
           </div>
         </div>
       </div>
@@ -95,6 +98,7 @@ export default {
 <style lang="scss" scoped>
 .memberContainer {
   display: flex;
+  height: 50px;
 }
 
 .icon {
@@ -104,11 +108,19 @@ export default {
 }
 
 .leftContainer {
+  width: 150px;
+}
+
+.iconWrapper {
+  width: 50px;
+  padding-left: 20px;
   position: relative;
 }
 
 .rightContainer {
+  display: flex;
   padding-left: 10px;
+  align-items: center;
 }
 
 ul {
@@ -120,8 +132,8 @@ ul {
   height: 15px;
   border-radius: 50%;
   position: absolute;
-  top: 35px;
-  left: 35px;
+  top: 38px;
+  left: 58px;
 }
 
 .green {
@@ -132,9 +144,12 @@ ul {
   background: red;
 }
 
-.callWrapper {
+.chatWrapper {
   display: flex;
-  align-items: center;
   padding-left: 10px;
+}
+
+.videoWrapper {
+  margin-right: 10px;
 }
 </style>

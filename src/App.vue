@@ -5,7 +5,7 @@
         <InputSelectbox />
         <Auth />
       </div>
-      <div>
+      <div class="menbersContainer">
         <MemberList />
       </div>
     </div>
@@ -55,12 +55,19 @@ export default {
 }
 
 .leftContainer {
-  width: 30%;
+  width: 400px;
+  height: 900px;
+  background: #2c3e50;
+  color: #fff;
+  overflow: auto;
 }
 
 .rightContainer {
-  width: 70%;
+  width: 600px;
 }
+/* .rightContainer {
+  width: 70%;
+} */
 
 .headerContainer {
   display: flex;

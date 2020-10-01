@@ -71,15 +71,15 @@ const actions = {
     }) {
         firebase.auth().onAuthStateChanged(async (user) => {
             if (user) {
-                const idToken = await user.getIdToken();
-                const res = await axios.get(
-                    BASEURL + "/secret/userinfo", {
-                        headers: {
-                            Authorization: idToken
-                        }
-                    }
-                );
-                if (!res.data) return;
+                // const idToken = await user.getIdToken();
+                // const res = await axios.get(
+                //     BASEURL + "/secret/userinfo", {
+                //         headers: {
+                //             Authorization: idToken
+                //         }
+                //     }
+                // );
+                // if (!res.data) return;
                 const _user = {
                     uid: user.uid,
                     name: user.displayName,

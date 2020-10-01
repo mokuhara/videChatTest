@@ -1,21 +1,30 @@
 <template>
   <div>
-    {{ chatStart }}
-    <div v-if="chatStart">
-      {{ thread }}
-      <textarea v-model="text"></textarea>
-      <div class="submit" @click="sendMessage">送信</div>
-      <div class="stop" @click="stopMessage">止める</div>
-      {{ remoteOponent.name }}
-      <p>=====remoteID============</p>
-      {{ remoteId }}
-      <p>=====localID============</p>
-      {{ localId }}
+    <div class="container">
+      <div>
+        <ul>
+          <li v-for="(message, index) in thread" :key="index">
+            <Thread
+              :name="message.name"
+              :iconUrl="message.iconUrl"
+              :type="message.type"
+              :text="message.text"
+              :createdAt="message.createdAt"
+            />
+          </li>
+        </ul>
+      </div>
+      <div v-if="chatStart" class="submitChat">
+        <textarea v-model="text"></textarea>
+        <div class="submit" @click="sendMessage">送信</div>
+        <!-- <div class="stop" @click="stopMessage">止める</div> -->
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import Thread from "./Thread";
 import { mapMutations, mapActions, mapState } from "vuex";
 
 export default {
@@ -31,6 +40,9 @@ export default {
       localId: null,
       remoteId: null,
     };
+  },
+  components: {
+    Thread,
   },
   computed: {
     ...mapState(["callStart", "opponent", "user", "peerObj", "chatStart"]),
@@ -64,12 +76,12 @@ export default {
       });
     },
     stopMessage() {
-      const payload = {
-        localUid: this.localId,
-        remoteUid: this.remoteId,
-        thread: this.thread,
-      };
-      this.storeChat2DB(payload);
+      // const payload = {
+      //   localUid: this.localId,
+      //   remoteUid: this.remoteId,
+      //   thread: this.thread,
+      // };
+      // this.storeChat2DB(payload);
       this.dataConnection.close(true);
       this.changeChatStatus(false);
     },
@@ -92,7 +104,7 @@ export default {
           this.remoteOponent.name = this.dataConnection.metadata.payload.name;
           this.remoteOponent.iconUrl = this.dataConnection.metadata.payload.iconUrl;
           this.remoteId = this.dataConnection.metadata.payload.remoteId;
-
+          console.error(this.chatStart);
           if (!this.chatStart) {
             const comfirm = confirm(
               `${name}からチャット要請がきてます。受けますか？`
@@ -119,13 +131,22 @@ export default {
         this.dataConnection.on("close", () => {
           this.changeChatStatus(false);
         });
-      } catch (e) {}
+      } catch (e) {
+        console.error(e);
+      }
     });
   },
 };
 </script>
 
 <style lang="scss" scoped>
+.container {
+  position: relative;
+  display: flex;
+  height: 900px;
+  width: 100%;
+}
+
 .hide {
   display: none;
 }
@@ -162,5 +183,31 @@ export default {
   width: 30px;
   height: 30px;
   border-radius: 50%;
+}
+
+.submitChat {
+  position: absolute;
+  bottom: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.submitChat textarea {
+  flex: 9;
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  background: #000;
+  color: #fff;
+}
+
+ul {
+  list-style: none;
+  padding: 0;
 }
 </style>

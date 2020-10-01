@@ -1,25 +1,23 @@
-import {
-  createRouter,
-  createWebHashHistory
-} from 'vue-router'
-import VideoChat from '../components/VideoChat'
-import TextChat from '../components/TextChat'
+import { createRouter, createWebHashHistory } from "vue-router";
+import TextChat from "../components/TextChat";
+import VideoChat from "../components/VideoChat";
 
-const routes = [{
-    path: '/text',
-    name: 'TextChat',
-    component: TextChat
+const routes = [
+  {
+    path: "/video",
+    name: "VideoChat",
+    component: VideoChat,
   },
   {
-    path: '/video',
-    name: 'VideoChat',
-    component: VideoChat
-  }
-]
+    path: "/text",
+    name: "TextChat",
+    component: TextChat,
+  },
+];
 
 const router = createRouter({
   history: createWebHashHistory(),
-  routes
-})
+  routes,
+});
 
-export default router
+export default router;

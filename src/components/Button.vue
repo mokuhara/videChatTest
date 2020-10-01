@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div @click="submit">
+    <div class="btnWrapper" @click="submit">
       <span class="btn">{{ text }}</span>
     </div>
   </div>
@@ -27,6 +27,8 @@ export default {
 
 <style lang="scss" scoped>
 .btn {
+  display: inline-block;
+  width: 50px;
   padding: 5px 5px;
   background-color: rgb(43, 171, 159);
   color: #fff;
