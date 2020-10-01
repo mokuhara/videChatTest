@@ -3,7 +3,11 @@
     <div class="container">
       <div>
         <ul>
-          <li v-for="(message, index) in thread" :key="index">
+          <li
+            class="threadWrapper"
+            v-for="(message, index) in thread"
+            :key="index"
+          >
             <Thread
               :name="message.name"
               :iconUrl="message.iconUrl"
@@ -209,5 +213,9 @@ export default {
 ul {
   list-style: none;
   padding: 0;
+}
+
+.threadWrapper {
+  margin-top: 10px;
 }
 </style>
