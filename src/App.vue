@@ -56,7 +56,7 @@ export default {
 
 .leftContainer {
   width: 400px;
-  height: 900px;
+  height: 600px;
   background: #2c3e50;
   color: #fff;
   overflow: auto;
@@ -65,9 +65,10 @@ export default {
 .rightContainer {
   width: 600px;
 }
-/* .rightContainer {
-  width: 70%;
-} */
+
+.rightContainer {
+  margin-left: 10px;
+}
 
 .headerContainer {
   display: flex;

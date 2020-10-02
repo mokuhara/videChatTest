@@ -44,7 +44,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["user"]),
+    ...mapState(["user", "callStart", "peerObj"]),
   },
   methods: {
     ...mapActions(["getUser2Firebase", "getPeerIdFromDB"]),

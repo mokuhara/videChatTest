@@ -147,7 +147,7 @@ export default {
 .container {
   position: relative;
   display: flex;
-  height: 900px;
+  height: 600px;
   width: 100%;
 }
 

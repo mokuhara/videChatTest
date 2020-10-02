@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div :class="calling ? 'container' : 'hide'">
+    <div :class="calling ? 'container' : 'hide'" class="container">
       <div v-if="calling" class="opponentContainer">
         <div>
           <img class="icon" :src="opponent.iconUrl || remoteOponent.iconUrl" />
@@ -13,18 +13,18 @@
         <video id="localVideo" autoplay muted playsinline></video>
       </div>
 
-      <div class="btn" v-if="calling">
+      <div class="btnWrapper" v-if="calling">
         <!-- <div @click="makeCall">通話開始</div> -->
-        <div @click="closeCall">通話終了</div>
-        <div @click="shareScreenHandler">画面共有</div>
+        <div class="btn" @click="closeCall">通話終了</div>
+        <div class="btn" @click="shareScreenHandler">画面共有</div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import Peer from "skyway-js";
-import { API_KEY } from "../../config/skyway";
+// import Peer from "skyway-js";
+// import { API_KEY } from "../../config/skyway";
 import { mapMutations, mapActions, mapState } from "vuex";
 
 export default {
@@ -42,7 +42,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["callStart", "opponent", "user"]),
+    ...mapState(["callStart", "opponent", "user", "peerObj"]),
   },
   methods: {
     ...mapMutations(["changePeerId", "changeCallStatus"]),
@@ -137,10 +137,12 @@ export default {
     localVideo.playsInline = true;
     await localVideo.play().catch(console.error);
 
-    this.peer = new Peer({
-      key: API_KEY,
-      debug: 3,
-    });
+    // this.peer = new Peer({
+    //   key: API_KEY,
+    //   debug: 3,
+    // });
+
+    this.peer = this.peerObj;
 
     this.peer.once("open", (id) => {
       this.changePeerId(id);
@@ -182,6 +184,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.container {
+  display: flex;
+  flex-direction: column;
+}
+
 .hide {
   display: none;
 }
@@ -202,21 +209,34 @@ export default {
 #remoteVideo {
   width: 800px;
   height: 450px;
-  background: red;
+  background-color: rgb(240, 241, 241);
 }
 
-.btn {
+.btnWrapper {
   display: flex;
   justify-content: center;
+  width: 800px;
 }
 
 .opponentContainer {
   display: flex;
+  align-items: center;
 }
 
 .icon {
   width: 30px;
   height: 30px;
   border-radius: 50%;
+}
+
+.btn {
+  margin: 10px;
+  display: inline-block;
+  width: 50px;
+  padding: 5px 5px;
+  background-color: rgb(240, 241, 241);
+  border-radius: 3px;
+  text-align: center;
+  font-size: 12px;
 }
 </style>

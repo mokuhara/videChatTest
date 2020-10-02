@@ -3,7 +3,7 @@
     <div>
       <div>
         メンバー一覧
-        {{ members }}
+        <!-- {{ members }} -->
       </div>
       <div class="membersContainer">
         <ul>
@@ -25,10 +25,10 @@
         </ul>
       </div>
     </div>
-    <div>
+    <!-- <div>
       <div>参考データ</div>
       {{ members }}
-    </div>
+    </div> -->
   </div>
 </template>
 
