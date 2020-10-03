@@ -1,8 +1,14 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 import TextChat from "../components/TextChat";
 import VideoChat from "../components/VideoChat";
+import Home from "../views/Home"
 
 const routes = [
+  {
+    path: "/",
+    name: "home",
+    component: Home,
+  },
   {
     path: "/video",
     name: "VideoChat",

@@ -91,13 +91,13 @@ export default {
     },
   },
   mounted() {
+    console.error("mouted");
     this.localId = this.user.peerId;
     this.peer = this.peerObj;
 
     // Register connected peer handler
     this.peer.on("connection", (_dataConnection) => {
       this.dataConnection = _dataConnection;
-      const name = this.dataConnection.metadata.payload.name;
       try {
         this.dataConnection.once("open", async () => {
           if (
@@ -108,19 +108,10 @@ export default {
           this.remoteOponent.name = this.dataConnection.metadata.payload.name;
           this.remoteOponent.iconUrl = this.dataConnection.metadata.payload.iconUrl;
           this.remoteId = this.dataConnection.metadata.payload.remoteId;
-          console.error(this.chatStart);
           if (!this.chatStart) {
-            const comfirm = confirm(
-              `${name}からチャット要請がきてます。受けますか？`
-            );
-            if (!comfirm) {
-              this.sendMessage();
-              this.dataConnection.close(true);
-              return;
-            }
+            this.changeChatStatus(true);
+            this.$router.push({ name: "TextChat" });
           }
-          //open chat window
-          this.changeChatStatus(true);
         });
         this.dataConnection.on("data", (data) => {
           const remoteMessage = {
@@ -139,6 +130,12 @@ export default {
         console.error(e);
       }
     });
+  },
+  beforeUnmount() {
+    if (this.dataConnection) {
+      this.dataConnection.close(true);
+    }
+    this.changeChatStatus(false);
   },
 };
 </script>

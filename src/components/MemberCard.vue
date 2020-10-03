@@ -55,11 +55,14 @@ export default {
         iconUrl: this.iconUrl,
         peerId: this.peerId_,
       };
+      console.error("callpayload");
+      console.error(payload);
       this.getUser2Firebase();
       //   this.getPeerIdFromDB(this.uid);
       //   this.getPeerIdFromDB(this.user.uid);
       this.storeOpponent(payload);
       this.changeCallStatus(true);
+      console.error(this.callStart);
     },
     startChat() {
       this.getUser2Firebase();
@@ -70,6 +73,8 @@ export default {
         iconUrl: this.iconUrl,
         peerId: this.peerId_,
       };
+      console.error("text");
+      console.error(payload);
       this.storeOpponent(payload);
       this.changeChatStatus(true);
     },

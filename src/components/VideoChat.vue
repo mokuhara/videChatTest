@@ -1,5 +1,6 @@
 <template>
   <div>
+    {{ calling }}
     <div :class="calling ? 'container' : 'hide'" class="container">
       <div v-if="calling" class="opponentContainer">
         <div>
@@ -55,6 +56,7 @@ export default {
       //相手のremoteIDとか取得する
       //   this.peerID = document.getElementById("their-id").value;
       this.peerID = this.opponent.peerId;
+      console.error(this.peerID);
       this.mediaConnection = this.peer.call(this.peerID, this.localStream, {
         metadata: {
           payload: {
@@ -137,27 +139,21 @@ export default {
     localVideo.playsInline = true;
     await localVideo.play().catch(console.error);
 
-    // this.peer = new Peer({
-    //   key: API_KEY,
-    //   debug: 3,
-    // });
-
     this.peer = this.peerObj;
-
-    this.peer.once("open", (id) => {
-      this.changePeerId(id);
-      this.storeUser2Firebase();
-    });
+    console.error(this.peer);
 
     // Register callee handler
     this.peer.on("call", (mediaConnection) => {
+      this.mediaConnection = mediaConnection;
       if (mediaConnection.metadata && mediaConnection.metadata.payload) {
         this.remoteOponent.name = mediaConnection.metadata.payload.name;
         this.remoteOponent.iconUrl = mediaConnection.metadata.payload.iconUrl;
       }
-      this.calling = true;
+      if (!this.callStart) {
+        this.calling = true;
+        this.$router.push({ name: "VideoChat" });
+      }
       mediaConnection.answer(this.localStream);
-      this.mediaConnection = mediaConnection;
       mediaConnection.on("stream", async (stream) => {
         // Render remote stream for callee
         remoteVideo.srcObject = stream;
@@ -172,13 +168,17 @@ export default {
       });
     });
     this.peer.on("error", console.error);
+
+    if (this.callStart) {
+      this.makeCall();
+    }
   },
-  watch: {
-    callStart(val) {
-      if (val) {
-        this.makeCall();
-      }
-    },
+  beforeUnmount() {
+    if (this.mediaConnection) {
+      this.mediaConnection.close(true);
+    }
+    console.error("close");
+    this._closeCallFlg();
   },
 };
 </script>
