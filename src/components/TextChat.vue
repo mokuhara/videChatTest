@@ -43,6 +43,7 @@ export default {
       },
       localId: null,
       remoteId: null,
+      test: "",
     };
   },
   components: {
@@ -74,9 +75,10 @@ export default {
           text: this.text,
           createdAt: new Date(),
         };
-        this.dataConnection.send({ text: this.text || "切断されました" });
-        this.thread.push(localMessage);
-        this.text = "";
+        this.dataConnection.send({ text: this.text || "skip" });
+        if (this.text) {
+          this.thread.push(localMessage);
+        }
       });
     },
     stopMessage() {
@@ -88,6 +90,7 @@ export default {
       // this.storeChat2DB(payload);
       this.dataConnection.close(true);
       this.changeChatStatus(false);
+      // this.$router.push({ name: "Home" });
     },
   },
   mounted() {
@@ -113,23 +116,28 @@ export default {
             this.$router.push({ name: "TextChat" });
           }
         });
+        console.error("dataConnection_open");
         this.dataConnection.on("data", (data) => {
-          const remoteMessage = {
-            name: this.remoteOponent.name,
-            iconUrl: this.remoteOponent.iconUrl,
-            type: "remote",
-            text: data.text,
-            createdAt: new Date(),
-          };
-          this.thread.push(remoteMessage);
+          if (data.text != "skip" || !data.text) {
+            const remoteMessage = {
+              name: this.remoteOponent.name,
+              iconUrl: this.remoteOponent.iconUrl,
+              type: "remote",
+              text: data.text,
+              createdAt: new Date(),
+            };
+            this.thread.push(remoteMessage);
+          }
         });
         this.dataConnection.on("close", () => {
           this.changeChatStatus(false);
+          // this.$router.push({ name: "Home" });
         });
       } catch (e) {
         console.error(e);
       }
     });
+    this.sendMessage();
   },
   beforeUnmount() {
     if (this.dataConnection) {

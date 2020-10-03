@@ -38,7 +38,7 @@ export default {
         name: "",
         iconUrl: "",
       },
-      calling: false,
+      calling: true,
     };
   },
   computed: {
@@ -77,6 +77,7 @@ export default {
         remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideo.srcObject = null;
         this._closeCallFlg();
+        this.$router.push({ name: "Home" });
       });
     },
     closeCall() {
@@ -150,7 +151,7 @@ export default {
       }
       if (!this.callStart) {
         this.calling = true;
-        this.$router.push({ name: "VideoChat" });
+        // this.$router.push({ name: "VideoChat" });
       }
       mediaConnection.answer(this.localStream);
       mediaConnection.on("stream", async (stream) => {
@@ -164,6 +165,7 @@ export default {
         remoteVideo.srcObject.getTracks().forEach((track) => track.stop());
         remoteVideo.srcObject = null;
         this._closeCallFlg();
+        this.$router.push({ name: "Home" });
       });
     });
     this.peer.on("error", console.error);
