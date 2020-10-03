@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ calling }}
     <div :class="calling ? 'container' : 'hide'" class="container">
       <div v-if="calling" class="opponentContainer">
         <div>
